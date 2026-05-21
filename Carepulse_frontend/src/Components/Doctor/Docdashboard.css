@@ -36,48 +36,59 @@ body {
   height: 120px;
   border-radius: 50%;
   object-fit: cover;
-  border: 5px solid #4f46e5;
+  border: 5px solid #2563eb;
   margin-bottom: 15px;
 }
 
 .doctor-profile h2 {
-  color: #1e293b;
+  color: #2563eb;
   margin-bottom: 5px;
 }
 
 .doctor-profile p {
-  color: #64748b;
+  color: #2563eb;
 }
 
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 18px;
+  margin-top: 40px;
 }
 
-.menu button {
-  padding: 14px;
+.menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
   border: none;
-  border-radius: 12px;
-  background: #f1f5f9;
-  cursor: pointer;
+  border-radius: 18px;
   font-size: 16px;
+  cursor: pointer;
+  background: none !important;
   transition: 0.3s;
+  color: #111827;
 }
 
-.menu button:hover {
-  background: #4f46e5;
-  color: white;
+.menu-btn:hover {
+  color: #2563eb;
+}
+
+.menu-icon {
+  font-size: 18px;
 }
 
 .logout-btn {
-  background: #fee2e2 !important;
-  color: #dc2626;
+  color: #111827;
 }
 
 .logout-btn:hover {
-  background: #dc2626 !important;
-  color: #ffffff;
+  color: red;
+}
+
+.active-menu {
+  color: #2563eb;
+  font-weight: 600;
 }
 
 /* Main Content */
@@ -120,12 +131,6 @@ body {
 
 /* Appointment Section */
 
-.appointment-section {
-  background: white;
-  border-radius: 20px;
-  padding: 25px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
 
 .appointment-section h2 {
   margin-bottom: 20px;
@@ -152,7 +157,7 @@ body {
 }
 
 .appointment-card span {
-  background: #4f46e5;
+  background: #2563eb;
   color: white;
   padding: 8px 14px;
   border-radius: 10px;
@@ -206,7 +211,7 @@ body {
 
 .excellent {
   width: 90%;
-  background: #4f46e5;
+  background: #2563eb;
 }
 
 .good {
@@ -235,25 +240,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Navigation */
-
-.react-calendar__navigation {
-  margin-bottom: 20px;
-}
-
-.react-calendar__navigation button {
-  min-width: 40px;
-  background: none;
-  font-size: 16px;
-  color: #1e293b;
-  border-radius: 10px;
-  border: none;
-}
-
-.react-calendar__navigation button:hover {
-  background: #eef2ff;
-}
-
 /* Week Days */
 
 .react-calendar__month-view__weekdays {
@@ -271,15 +257,11 @@ body {
   font-size: 14px;
 }
 
-.react-calendar__tile:hover {
-  background: #e0e7ff;
-}
-
 /* Active Date */
 
 .react-calendar__tile--active {
   background: none !important;
-  color:#4f46e5 !important;
+  color:#2563eb !important;
   font-weight: 600 !important;
 }
 
@@ -287,7 +269,7 @@ body {
 
 .react-calendar__tile--now {
   background: none !important;
-  color: #4f46e5;
+  color: #2563eb;
   font-weight: 600 !important;
 }
 
@@ -323,4 +305,69 @@ body {
   align-items: center;
   font-size: 30px;
   color: #2563eb;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* Right Side */
+
+.right-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Appointment Section */
+
+.appointment-section {
+  background: white;
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  min-height: 100%;
+}
+
+/* summary Box */
+
+.summary-box {
+  height: 100%;
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.summary-box h2 {
+  margin-bottom: 35px;
+  color: #1e293b;
+}
+
+.col-or{
+  color: #c9d5fb;
+}
+.co-lor{
+  color: #f59e0b;
+}
+.colo-r{
+  color: #2563eb;
+}
+.m10{
+  margin-left: 15px;
+  margin-top: 10px;
+}
+.m50{
+  margin-top: 50px;
+  margin-left: 15px;
+}
+/* Chart */
+
+.chart-container {
+  width: 250px;
+  height: 250px;
+  margin: auto;
 }
