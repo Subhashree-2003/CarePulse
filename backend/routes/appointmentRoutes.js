@@ -1,60 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const mongoose = require('mongoose');
 
-router.get('/doctors/all', async function(req, res) {
-  try {
-    const [rows] = await db.query('SELECT doc_id, doc_name, dept FROM doctor WHERE Status = 1');
-    res.json({ success: true, data: rows });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
+const appointmentSchema = new mongoose.Schema({
+  patient_id: String,
+  doctor_id: String,
+  appt_date: Date,
+  appt_time: String,
+  patient_name: String,
+  doc_name: String,
+  dept: String,
+  created_at: { type: Date, default: Date.now }
 });
 
-router.get('/availability/:doc_id', async function(req, res) {
-  try {
-    const [rows] = await db.query('SELECT * FROM doctor_availability WHERE doc_id = ? AND is_active = 1', [req.params.doc_id]);
-    res.json({ success: true, data: rows });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
+const Appointment = mongoose.model('Appointment', appointmentSchema);
 
 router.get('/', async function(req, res) {
   try {
-    var sql = 'SELECT a.appt_id, a.patient_id, a.doctor_id, a.appt_date, a.appt_time, a.patient_name, d.doc_name, d.dept FROM appointment a LEFT JOIN doctor d ON a.doctor_id = d.doc_id ORDER BY a.appt_date DESC';
-    const [rows] = await db.query(sql);
-    res.json({ success: true, data: rows });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-router.get('/patient/:patient_id', async function(req, res) {
-  try {
-    var sql = 'SELECT a.*, d.doc_name, d.dept FROM appointment a LEFT JOIN doctor d ON a.doctor_id = d.doc_id WHERE a.patient_id = ? ORDER BY a.appt_date DESC';
-    const [rows] = await db.query(sql, [req.params.patient_id]);
-    res.json({ success: true, data: rows });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-router.get('/doctor/:doctor_id', async function(req, res) {
-  try {
-    var sql = 'SELECT a.*, p.first_name, p.last_name FROM appointment a LEFT JOIN patient p ON a.patient_id = p.patient_id WHERE a.doctor_id = ? ORDER BY a.appt_date DESC';
-    const [rows] = await db.query(sql, [req.params.doctor_id]);
-    res.json({ success: true, data: rows });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-router.get('/:id', async function(req, res) {
-  try {
-    const [rows] = await db.query('SELECT * FROM appointment WHERE appt_id = ?', [req.params.id]);
-    if (rows.length === 0) return res.status(404).json({ success: false, message: 'Appointment not found' });
-    res.json({ success: true, data: rows[0] });
+    const appointments = await Appointment.find().sort({ appt_date: -1 });
+    res.json({ success: true, data: appointments });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -66,20 +30,18 @@ router.post('/', async function(req, res) {
     return res.status(400).json({ success: false, message: 'Required fields missing' });
   }
   try {
-    var sql = 'INSERT INTO appointment (patient_id, doctor_id, appt_date, appt_time, patient_name) VALUES (?, ?, ?, ?, ?)';
-    const [result] = await db.query(sql, [b.patient_id, b.doctor_id, b.appt_date, b.appt_time, b.patient_name]);
-    res.status(201).json({ success: true, message: 'Appointment booked successfully', appt_id: result.insertId });
+    const appointment = new Appointment(b);
+    await appointment.save();
+    res.status(201).json({ success: true, message: 'Appointment booked successfully' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
 router.put('/:id', async function(req, res) {
-  var b = req.body;
   try {
-    var sql = 'UPDATE appointment SET patient_id = ?, doctor_id = ?, appt_date = ?, appt_time = ?, patient_name = ? WHERE appt_id = ?';
-    const [result] = await db.query(sql, [b.patient_id, b.doctor_id, b.appt_date, b.appt_time, b.patient_name, req.params.id]);
-    if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Appointment not found' });
+    const result = await Appointment.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!result) return res.status(404).json({ success: false, message: 'Appointment not found' });
     res.json({ success: true, message: 'Appointment updated successfully' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -88,12 +50,16 @@ router.put('/:id', async function(req, res) {
 
 router.delete('/:id', async function(req, res) {
   try {
-    const [result] = await db.query('DELETE FROM appointment WHERE appt_id = ?', [req.params.id]);
-    if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Appointment not found' });
+    const result = await Appointment.findByIdAndDelete(req.params.id);
+    if (!result) return res.status(404).json({ success: false, message: 'Appointment not found' });
     res.json({ success: true, message: 'Appointment cancelled successfully' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
+});
+
+router.get('/doctors/all', async function(req, res) {
+  res.json({ success: true, data: [] });
 });
 
 module.exports = router;

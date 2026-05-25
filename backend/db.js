@@ -1,13 +1,13 @@
-require('dotenv').config();
-const mysql = require('mysql2/promise');
+const mongoose = require('mongoose');
 
-const db = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'telemedicine_db',
-  waitForConnections: true,
-  connectionLimit: 10,
-});
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/telemedicine_db');
+    console.log('MongoDB connected successfully');
+  } catch (err) {
+    console.error('MongoDB connection error:', err.message);
+    process.exit(1);
+  }
+};
 
-module.exports = db;
+module.exports = connectDB;
