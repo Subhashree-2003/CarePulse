@@ -5,6 +5,7 @@ import Appointment from '../appointment.js';
 
 
 
+
 router.post('/', async (req, res) => {
     try {
         const data = req.body;
