@@ -8,7 +8,6 @@ router.post('/', async (req, res) => {
 
 
 
-    
     try {
         const data = req.body;
         const newappointment = new appointment(data);
