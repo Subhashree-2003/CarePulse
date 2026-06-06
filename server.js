@@ -10,27 +10,58 @@ import usersRoutes from './routes/usersRoutes.js';
 import appointmentRoutes from './routes/appointmentRoutes.js';
 
 
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
+const connectDB = require('./db');
+
 const app = express();
 
-// Middleware
-app.use(bodyParser.json());
+connectDB();
 
+app.use(cors());
+app.use(express.json());
 
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
+const connectDB = require('./db');
 
-// Base Route
-app.get('/', (req, res) => {
-    res.send("Server is running and DB is connected!");
+const app = express();
+
+connectDB();
+
+app.use(cors());
+app.use(express.json());
+
+// Megha's Routes
+const patientRoutes = require('./routes/patientRoutes');
+app.use('/api/patients', patientRoutes);
+
+const appointmentRoutes = require('./routes/appointmentRoutes');
+app.use('/api/appointments', appointmentRoutes);
+
+const ehrRoutes = require('./routes/ehrRoutes');
+app.use('/api/ehr', ehrRoutes);
+
+const billingRoutes = require('./routes/billingRoutes');
+app.use('/api/billing', billingRoutes);
+
+// Subha's Routes
+const doctorRoutes = require('./routes/doctorRoutes');
+app.use('/api/doctors', doctorRoutes);
+
+const adminRoutes = require('./routes/adminRoutes');
+app.use('/api/admin', adminRoutes);
+
+// Saurabh's Routes
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
+
+const telemedicineRoutes = require('./routes/telemedicineRoutes');
+app.use('/api/telemedicine', telemedicineRoutes);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, function() {
+  console.log('Server running on port ' + PORT);
 });
-
-// 2. Use the routers (Variable names now match the imports above)
-app.use('/doctor', doctorRoutes);
-app.use('/users', usersRoutes);
-app.use('/appointment', appointmentRoutes);
-
-// Start Server
-app.listen(3000, () => {
-    console.log("Server listening on port 3000");
-});
-
-
-
