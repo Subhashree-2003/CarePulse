@@ -82,6 +82,7 @@ router.delete('/:id', async (req, res) => {
             return res.status(404).json({ error: 'No doctor found with that database ID' });
         }
 
+        
         console.log('Document deleted successfully from database');
         
         // Return a success message alongside the data that was deleted
