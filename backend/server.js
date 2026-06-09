@@ -36,6 +36,6 @@ const telemedicineRoutes = require('./routes/telemedicineRoutes');
 app.use('/api/telemedicine', telemedicineRoutes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, function() {
+app.listen(PORT, '0.0.0.0', function() {
   console.log('Server running on port ' + PORT);
 });
