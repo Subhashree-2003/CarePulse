@@ -114,22 +114,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                   Login
                 </Button>
 
-                <Divider>or login as demo</Divider>
-
-                <Box display="flex" gap={1}>
-                  <Button fullWidth variant="outlined" size="small" color="success"
-                    onClick={() => setLoginForm({ email: 'patient@demo.com', password: 'demo123' })}>
-                    Patient
-                  </Button>
-                  <Button fullWidth variant="outlined" size="small" color="primary"
-                    onClick={() => setLoginForm({ email: 'doctor@demo.com', password: 'demo123' })}>
-                    Doctor
-                  </Button>
-                  <Button fullWidth variant="outlined" size="small" color="error"
-                    onClick={() => setLoginForm({ email: 'admin@demo.com', password: 'demo123' })}>
-                    Admin
-                  </Button>
-                </Box>
+                
               </Box>
             )}
 
