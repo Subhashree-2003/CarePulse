@@ -13,85 +13,139 @@ import AddIcon from '@mui/icons-material/Add';
 
 const API = 'http://localhost:5000/api/admin';
 
+type Admin = {
+  _id: string;
+  admin_id: string;
+  admin_name: string;
+  email: string;
+  role: string;
+  is_active: boolean;
+};
+
+type AuditLog = {
+  _id: string;
+  user_id: string;
+  action: string;
+  module: string;
+  description: string;
+  status: 'success' | 'error' | string;
+  timestamp: string;
+};
+
+type AdminNotification = {
+  _id: string;
+  title: string;
+  message: string;
+  type: string;
+  is_read: boolean;
+};
+
+type ApiListResponse<T> = {
+  data?: T[];
+};
+
+type NotificationForm = {
+  user_id: string;
+  user_type: 'patient' | 'doctor' | 'admin';
+  title: string;
+  message: string;
+  type: 'general' | 'appointment' | 'billing' | 'alert';
+};
+
 export default function AdminDashboard() {
   const [tab, setTab] = useState(0);
-  const [auditLogs, setAuditLogs] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [admins, setAdmins] = useState([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [notifications, setNotifications] = useState<AdminNotification[]>([]);
+  const [admins, setAdmins] = useState<Admin[]>([]);
   const [open, setOpen] = useState(false);
-  const [notifForm, setNotifForm] = useState({
-    user_id: '', user_type: 'patient', title: '', message: '', type: 'general'
+  const [notifForm, setNotifForm] = useState<NotificationForm>({
+    user_id: '',
+    user_type: 'patient',
+    title: '',
+    message: '',
+    type: 'general',
   });
 
   const loadData = async () => {
     try {
       const [logs, notifs, adms] = await Promise.all([
-        axios.get(API + '/audit-logs'),
-        axios.get(API + '/notifications'),
-        axios.get(API + '/admins')
+        axios.get<ApiListResponse<AuditLog>>(API + '/audit-logs'),
+        axios.get<ApiListResponse<AdminNotification>>(API + '/notifications'),
+        axios.get<ApiListResponse<Admin>>(API + '/admins'),
       ]);
       setAuditLogs(logs.data.data || []);
       setNotifications(notifs.data.data || []);
       setAdmins(adms.data.data || []);
-    } catch {}
+    } catch (error) {
+      console.error('Error loading admin dashboard data:', error);
+    }
   };
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => {
+    void Promise.resolve().then(loadData);
+  }, []);
 
   const handleSendNotification = async () => {
     try {
       await axios.post(API + '/notifications', notifForm);
       setOpen(false);
-      loadData();
-    } catch { alert('Error sending notification'); }
+      void loadData();
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      alert('Error sending notification');
+    }
   };
 
   const markAsRead = async (id: string) => {
     try {
       await axios.put(API + '/notifications/' + id + '/read');
-      loadData();
-    } catch {}
+      void loadData();
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
   };
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" fontWeight={700} color="#4a148c">
-          🛡️ Admin Dashboard
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" color="#4a148c" sx={{ fontWeight: 700 }}>
+          Admin Dashboard
         </Typography>
         {tab === 2 && (
-          <Button variant="contained" startIcon={<AddIcon />}
-            sx={{ backgroundColor: '#4a148c' }} onClick={() => setOpen(true)}>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            sx={{ backgroundColor: '#4a148c' }}
+            onClick={() => setOpen(true)}
+          >
             Send Notification
           </Button>
         )}
       </Box>
 
-      {/* Stats */}
-      <Box display="flex" gap={2} mb={3} flexWrap="wrap">
+      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
         <Paper elevation={3} sx={{ p: 2, flex: 1, minWidth: 140, borderTop: '4px solid #4a148c' }}>
-          <Typography variant="h4" fontWeight={700} color="#4a148c">{auditLogs.length}</Typography>
+          <Typography variant="h4" color="#4a148c" sx={{ fontWeight: 700 }}>{auditLogs.length}</Typography>
           <Typography variant="body2" color="text.secondary">Audit Logs</Typography>
         </Paper>
         <Paper elevation={3} sx={{ p: 2, flex: 1, minWidth: 140, borderTop: '4px solid #e91e63' }}>
-          <Typography variant="h4" fontWeight={700} color="#e91e63">
-            {(notifications as any[]).filter((n: any) => !n.is_read).length}
+          <Typography variant="h4" color="#e91e63" sx={{ fontWeight: 700 }}>
+            {notifications.filter((notification) => !notification.is_read).length}
           </Typography>
           <Typography variant="body2" color="text.secondary">Unread Notifications</Typography>
         </Paper>
         <Paper elevation={3} sx={{ p: 2, flex: 1, minWidth: 140, borderTop: '4px solid #1565c0' }}>
-          <Typography variant="h4" fontWeight={700} color="#1565c0">{admins.length}</Typography>
+          <Typography variant="h4" color="#1565c0" sx={{ fontWeight: 700 }}>{admins.length}</Typography>
           <Typography variant="body2" color="text.secondary">Admins</Typography>
         </Paper>
       </Box>
 
-      <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3 }}>
+      <Tabs value={tab} onChange={(_, value: number) => setTab(value)} sx={{ mb: 3 }}>
         <Tab icon={<AdminPanelSettingsIcon />} label="Admins" />
         <Tab icon={<HistoryIcon />} label="Audit Logs" />
         <Tab icon={<NotificationsIcon />} label="Notifications" />
       </Tabs>
 
-      {/* Admins Tab */}
       {tab === 0 && (
         <TableContainer component={Paper} elevation={3}>
           <Table>
@@ -105,15 +159,18 @@ export default function AdminDashboard() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {admins.map((a: any) => (
-                <TableRow key={a._id}>
-                  <TableCell>{a.admin_id}</TableCell>
-                  <TableCell><b>{a.admin_name}</b></TableCell>
-                  <TableCell>{a.email}</TableCell>
-                  <TableCell><Chip label={a.role} size="small" color="secondary" /></TableCell>
+              {admins.map((admin) => (
+                <TableRow key={admin._id}>
+                  <TableCell>{admin.admin_id}</TableCell>
+                  <TableCell><b>{admin.admin_name}</b></TableCell>
+                  <TableCell>{admin.email}</TableCell>
+                  <TableCell><Chip label={admin.role} size="small" color="secondary" /></TableCell>
                   <TableCell>
-                    <Chip label={a.is_active ? 'Active' : 'Inactive'}
-                      color={a.is_active ? 'success' : 'error'} size="small" />
+                    <Chip
+                      label={admin.is_active ? 'Active' : 'Inactive'}
+                      color={admin.is_active ? 'success' : 'error'}
+                      size="small"
+                    />
                   </TableCell>
                 </TableRow>
               ))}
@@ -122,7 +179,6 @@ export default function AdminDashboard() {
         </TableContainer>
       )}
 
-      {/* Audit Logs Tab */}
       {tab === 1 && (
         <TableContainer component={Paper} elevation={3}>
           <Table>
@@ -137,15 +193,18 @@ export default function AdminDashboard() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {auditLogs.map((log: any) => (
+              {auditLogs.map((log) => (
                 <TableRow key={log._id}>
                   <TableCell>{log.user_id}</TableCell>
                   <TableCell><Chip label={log.action} size="small" /></TableCell>
                   <TableCell>{log.module}</TableCell>
                   <TableCell>{log.description}</TableCell>
                   <TableCell>
-                    <Chip label={log.status} size="small"
-                      color={log.status === 'success' ? 'success' : 'error'} />
+                    <Chip
+                      label={log.status}
+                      size="small"
+                      color={log.status === 'success' ? 'success' : 'error'}
+                    />
                   </TableCell>
                   <TableCell>{new Date(log.timestamp).toLocaleString()}</TableCell>
                 </TableRow>
@@ -155,7 +214,6 @@ export default function AdminDashboard() {
         </TableContainer>
       )}
 
-      {/* Notifications Tab */}
       {tab === 2 && (
         <TableContainer component={Paper} elevation={3}>
           <Table>
@@ -169,18 +227,21 @@ export default function AdminDashboard() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {notifications.map((n: any) => (
-                <TableRow key={n._id}>
-                  <TableCell><b>{n.title}</b></TableCell>
-                  <TableCell>{n.message}</TableCell>
-                  <TableCell><Chip label={n.type} size="small" color="info" /></TableCell>
+              {notifications.map((notification) => (
+                <TableRow key={notification._id}>
+                  <TableCell><b>{notification.title}</b></TableCell>
+                  <TableCell>{notification.message}</TableCell>
+                  <TableCell><Chip label={notification.type} size="small" color="info" /></TableCell>
                   <TableCell>
-                    <Chip label={n.is_read ? 'Read' : 'Unread'} size="small"
-                      color={n.is_read ? 'default' : 'warning'} />
+                    <Chip
+                      label={notification.is_read ? 'Read' : 'Unread'}
+                      size="small"
+                      color={notification.is_read ? 'default' : 'warning'}
+                    />
                   </TableCell>
                   <TableCell>
-                    {!n.is_read && (
-                      <Button size="small" onClick={() => markAsRead(n._id)}>
+                    {!notification.is_read && (
+                      <Button size="small" onClick={() => markAsRead(notification._id)}>
                         Mark Read
                       </Button>
                     )}
@@ -192,25 +253,54 @@ export default function AdminDashboard() {
         </TableContainer>
       )}
 
-      {/* Send Notification Dialog */}
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Send Notification</DialogTitle>
         <DialogContent>
-          <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2} mt={1}>
-            <TextField label="User ID" value={notifForm.user_id} onChange={e => setNotifForm({ ...notifForm, user_id: e.target.value })} />
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mt: 1 }}>
+            <TextField
+              label="User ID"
+              value={notifForm.user_id}
+              onChange={(event) => setNotifForm({ ...notifForm, user_id: event.target.value })}
+            />
             <FormControl>
               <InputLabel>User Type</InputLabel>
-              <Select value={notifForm.user_type} label="User Type" onChange={e => setNotifForm({ ...notifForm, user_type: e.target.value })}>
+              <Select
+                value={notifForm.user_type}
+                label="User Type"
+                onChange={(event) => setNotifForm({
+                  ...notifForm,
+                  user_type: event.target.value as NotificationForm['user_type'],
+                })}
+              >
                 <MenuItem value="patient">Patient</MenuItem>
                 <MenuItem value="doctor">Doctor</MenuItem>
                 <MenuItem value="admin">Admin</MenuItem>
               </Select>
             </FormControl>
-            <TextField label="Title *" value={notifForm.title} onChange={e => setNotifForm({ ...notifForm, title: e.target.value })} sx={{ gridColumn: 'span 2' }} />
-            <TextField label="Message *" multiline rows={3} value={notifForm.message} onChange={e => setNotifForm({ ...notifForm, message: e.target.value })} sx={{ gridColumn: 'span 2' }} />
+            <TextField
+              label="Title *"
+              value={notifForm.title}
+              onChange={(event) => setNotifForm({ ...notifForm, title: event.target.value })}
+              sx={{ gridColumn: 'span 2' }}
+            />
+            <TextField
+              label="Message *"
+              multiline
+              rows={3}
+              value={notifForm.message}
+              onChange={(event) => setNotifForm({ ...notifForm, message: event.target.value })}
+              sx={{ gridColumn: 'span 2' }}
+            />
             <FormControl sx={{ gridColumn: 'span 2' }}>
               <InputLabel>Type</InputLabel>
-              <Select value={notifForm.type} label="Type" onChange={e => setNotifForm({ ...notifForm, type: e.target.value })}>
+              <Select
+                value={notifForm.type}
+                label="Type"
+                onChange={(event) => setNotifForm({
+                  ...notifForm,
+                  type: event.target.value as NotificationForm['type'],
+                })}
+              >
                 <MenuItem value="general">General</MenuItem>
                 <MenuItem value="appointment">Appointment</MenuItem>
                 <MenuItem value="billing">Billing</MenuItem>
