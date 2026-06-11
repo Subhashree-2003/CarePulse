@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import {
-  AppBar, Toolbar, Typography, Button, Box,
+  AppBar, Toolbar, Typography, Box,
   Drawer, List, ListItem, ListItemIcon, ListItemText,
   ListItemButton, Divider, CssBaseline
 } from '@mui/material';
@@ -45,60 +45,57 @@ const menuItems = [
 function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const navTextSlotProps = {
+    primary: {
+      sx: { fontSize: '0.88rem', fontWeight: 500 },
+    },
+  };
+
+  const renderSection = (owner: string, title: string) => (
+    <>
+      <ListItem sx={{ py: 0.5 }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}
+        >
+          {title}
+        </Typography>
+      </ListItem>
+      {menuItems.filter((item) => item.owner === owner).map((item) => (
+        <ListItemButton
+          key={item.path}
+          selected={location.pathname === item.path}
+          onClick={() => navigate(item.path)}
+          sx={{
+            '&.Mui-selected': {
+              backgroundColor: item.color + '15',
+              borderLeft: '3px solid ' + item.color,
+            },
+          }}
+        >
+          <ListItemIcon sx={{ color: item.color, minWidth: 36 }}>{item.icon}</ListItemIcon>
+          <ListItemText primary={item.label} slotProps={navTextSlotProps} />
+        </ListItemButton>
+      ))}
+    </>
+  );
 
   return (
-    <Drawer variant="permanent" sx={{
-      width: DRAWER_WIDTH,
-      flexShrink: 0,
-      '& .MuiDrawer-paper': { width: DRAWER_WIDTH, boxSizing: 'border-box', mt: '64px' }
-    }}>
+    <Drawer
+      variant="permanent"
+      sx={{
+        width: DRAWER_WIDTH,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': { width: DRAWER_WIDTH, boxSizing: 'border-box', mt: '64px' },
+      }}
+    >
       <List>
-        <ListItem sx={{ py: 0.5 }}>
-          <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
-            Megha's Modules
-          </Typography>
-        </ListItem>
-        {menuItems.filter(m => m.owner === 'Megha').map(item => (
-          <ListItemButton key={item.path}
-            selected={location.pathname === item.path}
-            onClick={() => navigate(item.path)}
-            sx={{ '&.Mui-selected': { backgroundColor: item.color + '15', borderLeft: '3px solid ' + item.color } }}>
-            <ListItemIcon sx={{ color: item.color, minWidth: 36 }}>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: '0.88rem', fontWeight: 500 }} />
-          </ListItemButton>
-        ))}
-
+        {renderSection('Megha', "Megha's Modules")}
         <Divider sx={{ my: 1 }} />
-        <ListItem sx={{ py: 0.5 }}>
-          <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
-            Subha's Modules
-          </Typography>
-        </ListItem>
-        {menuItems.filter(m => m.owner === 'Subha').map(item => (
-          <ListItemButton key={item.path}
-            selected={location.pathname === item.path}
-            onClick={() => navigate(item.path)}
-            sx={{ '&.Mui-selected': { backgroundColor: item.color + '15', borderLeft: '3px solid ' + item.color } }}>
-            <ListItemIcon sx={{ color: item.color, minWidth: 36 }}>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: '0.88rem', fontWeight: 500 }} />
-          </ListItemButton>
-        ))}
-
+        {renderSection('Subha', "Subha's Modules")}
         <Divider sx={{ my: 1 }} />
-        <ListItem sx={{ py: 0.5 }}>
-          <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
-            Saurabh's Modules
-          </Typography>
-        </ListItem>
-        {menuItems.filter(m => m.owner === 'Saurabh').map(item => (
-          <ListItemButton key={item.path}
-            selected={location.pathname === item.path}
-            onClick={() => navigate(item.path)}
-            sx={{ '&.Mui-selected': { backgroundColor: item.color + '15', borderLeft: '3px solid ' + item.color } }}>
-            <ListItemIcon sx={{ color: item.color, minWidth: 36 }}>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: '0.88rem', fontWeight: 500 }} />
-          </ListItemButton>
-        ))}
+        {renderSection('Saurabh', "Saurabh's Modules")}
       </List>
     </Drawer>
   );
@@ -111,7 +108,7 @@ function App() {
       <AppBar position="fixed" sx={{ backgroundColor: '#1a6b5a', zIndex: 1201 }}>
         <Toolbar>
           <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: 0.5 }}>
-            🏥 CarePulse — Telemedicine Platform
+            CarePulse - Telemedicine Platform
           </Typography>
         </Toolbar>
       </AppBar>
